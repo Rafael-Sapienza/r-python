@@ -48,6 +48,7 @@ pub enum Type {
     TString,
     TVoid,
     TFunction(Box<Option<Type>>, Vec<Type>),
+	TLambda,
     TList(Box<Type>),
     TTuple(Vec<Type>),
     TMaybe(Box<Type>),
