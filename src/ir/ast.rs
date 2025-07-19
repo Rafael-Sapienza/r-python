@@ -47,7 +47,7 @@ pub enum Type {
     TReal,
     TString,
     TVoid,
-    TFunction(Box<Option<Type>>, Vec<Type>),
+    TFunction(Box<Type>, Vec<Type>),
     TList(Box<Type>),
     TTuple(Vec<Type>),
     TMaybe(Box<Type>),

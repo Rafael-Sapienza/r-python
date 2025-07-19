@@ -1,3 +1,4 @@
+pub mod type_checker_common;
 pub mod expression_type_checker;
 pub mod statement_type_checker;
 
