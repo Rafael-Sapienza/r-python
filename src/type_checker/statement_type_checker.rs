@@ -4,6 +4,7 @@ use std::fmt::format;
 use crate::environment::environment::Environment;
 use crate::ir::ast::{Expression, Function, Name, Statement, Type, ValueConstructor};
 use crate::type_checker::expression_type_checker::check_expr;
+use crate::type_checker::type_checker_common::{function_to_type, type_to_function};
 
 type ErrorMessage = String;
 
@@ -89,7 +90,18 @@ fn check_var_declaration_stmt(
     let exp_type = check_expr(*exp, &new_env)?;
 
     if var_type.is_none() {
-        new_env.map_variable(name.clone(), true, exp_type);
+		if new_env.globals.functions.contains_key(&name) {
+			return Err(format!(
+				"Var {} has been defined as a function previously",
+				name
+			));
+		}
+		new_env.map_variable(name.clone(), true, exp_type.clone());
+		if let Type::TFunction(_, _) = exp_type {
+			let mut f = type_to_function(&exp_type)?;
+			f.name = name.clone();
+			new_env.map_function(f.clone());
+		}
         Ok(new_env)
     } else {
         Err(format!(
@@ -109,8 +121,19 @@ fn check_val_declaration_stmt(
     let exp_type = check_expr(*exp, &new_env)?;
 
     if var_type.is_none() {
-        new_env.map_variable(name.clone(), false, exp_type);
-        Ok(new_env)
+        if new_env.globals.functions.contains_key(&name) {
+			return Err(format!(
+				"Val {} has been defined as a function previously",
+				name
+			));
+		}
+		new_env.map_variable(name.clone(), false, exp_type.clone());
+		if let Type::TFunction(_, _) = exp_type {
+			let mut f = type_to_function(&exp_type)?;
+			f.name = name.clone();
+			new_env.map_function(f.clone());
+		}
+		Ok(new_env)
     } else {
         Err(format!(
             "[Type Error] variable '{:?}' already declared",
